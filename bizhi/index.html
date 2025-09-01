@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>随机壁纸</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0;">
+        <link rel="stylesheet" href="https://cdn.staticfile.org/bootstrap/4.6.0/css/bootstrap.min.css">
+        <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdn.staticfile.org/bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+        <style type="text/css">
+        .needtop{
+          margin-top:10px;
+        }
+        </style>
+        <script type="text/javascript">
+        $(document).ready(function (){
+          //欧阳鹏文本编辑器
+          $(".container").css("height",window.innerHeight);
+          window.location.hash="";
+          //页面控制部分
+          function change(hash){
+            window.location.hash=hash;
+          }
+          window.addEventListener("hashchange", function() {
+            // 获取hash值
+            var hash = window.location.hash;
+            if(hash=="#page1"||hash==""){
+              $("#page1").fadeIn(500);
+              $("#page2").hide();
+              $("#page3").hide();
+              $("#view_img").html("");
+            }else if(hash=="#page2"){
+              $("#page1").hide();
+              $("#page2").fadeIn(500);
+              $("#page3").hide();
+            }else if(hash=="#page3"){
+              $("#page2").hide();
+              $("#page1").hide();
+              $("#page3").fadeIn(500);
+            }
+            // 根据获取的hash做相应的操作
+          });
+          //页面控制部分
+          function getRes(){
+            var sel=$("#type option:selected").text();
+            if(sel=="图片"){
+              return "pic";
+            }else if(sel=="视频"){
+              return "video";
+            }
+          }
+          function changeImg(){
+            $("#page1").fadeOut();
+            $.get("random.php?res="+getRes()+"&count="+$("#num option:selected").text(),function (data){
+              var json=JSON.parse(data);
+              console.log(json);
+              $("#name1").val(json.name1);
+              $("#name2").val(json.name2);
+              var list=json.list;
+              var html="";
+              for(var i=0;i<list.length;i++){
+                var thumb=list[i].thumb;
+                var url=list[i].url;
+                html+='<div class="col-6 col-sm-4 col-md-3 col-lg-2"><img class="img-fluid rounded img-thumbnail list" src="'+thumb+'" style="margin-bottom:10px;" rel="'+url+'||'+getRes()+'"></div>';
+              }
+              $("#img-list").html(html);
+              $("#page1 img.list").click(function (){
+                change("page2");
+                var url=$(this).attr("rel").split('||')[0];
+                var res=$(this).attr("rel").split('||')[1];
+                $("#img_url").val(url);
+                if(res=="pic"){
+                  $("#msg_type").text("图片地址");
+                  $("#view_img").html('<img src="'+url+'" class="rounded" style="position:relative;width:100%">');
+                }else if(res=="video"){
+                  $("#msg_type").text("视频地址");
+                  $("#view_img").html('<video src="'+url+'" controls class="rounded" style="position:relative;width:100%"></video>');
+                }
+              });
+              $("#page1").fadeIn();
+            });
+          }
+          $("#change").click(function (){
+            changeImg();
+          });
+          changeImg();
+        });
+        </script>
+    </head>
+    <body>
+        <img src="http://up1.bdcdn.bizhiduoduo.com/wallpaper/wp-upload/20210531/52f90m53k4scoknhysmbzngdg.jpg" style="position:fixed;width:100%;height:100%">
+        <div class="container" id="page1" style="padding-top:10px;padding-bottom:20px;display:none;overflow-y:auto;">
+            <div class="row">
+                <div class="col-4 col-sm-2 needtop">
+                    <button class="btn btn-light btn-block" type="button" id="change">换一换</button>
+                </div>
+                <div class="col-4 col-sm-2 needtop">
+                    <select class="form-control" id="type">
+                        <option>图片</option>
+                        <option>视频</option>
+                    </select>
+                </div>
+                <div class="col-4 col-sm-2 needtop">
+                    <select class="form-control" id="num">
+                        <option>12</option>
+                        <option selected>24</option>
+                    </select>
+                </div>
+                <div class="col-6 col-sm-3 needtop">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">主类</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="主类" id="name1">
+                    </div>
+                </div>
+                <div class="col-6 col-sm-3 needtop">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">小类</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="小类" id="name2">
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="img-list"></div>
+        </div>
+        <div class="container" id="page2" style="display:none;padding-top:10px;padding-bottom:20px;">
+            <div id="view_img" class="needtop"></div>
+            <div class="input-group mb-3 needtop">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="msg_type"></span>
+                </div>
+                <input type="text" class="form-control" placeholder="图片URL地址" id="img_url">
+            </div>
+        </div>
+    </body>
+</html>
